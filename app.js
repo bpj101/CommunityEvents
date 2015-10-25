@@ -2,17 +2,21 @@
 
 //dependencies
 var config = require('./config'),
-    express = require('express'),
-    cookieParser = require('cookie-parser'),
-    bodyParser = require('body-parser'),
-    session = require('express-session'),
-    mongoStore = require('connect-mongo')(session),
-    http = require('http'),
-    path = require('path'),
-    passport = require('passport'),
-    mongoose = require('mongoose'),
-    helmet = require('helmet'),
-    csrf = require('csurf');
+  express = require('express'),
+  cookieParser = require('cookie-parser'),
+  bodyParser = require('body-parser'),
+  session = require('express-session'),
+  mongoStore = require('connect-mongo')(session),
+  http = require('http'),
+  path = require('path'),
+  passport = require('passport'),
+  flash = require('connect-flash'),
+  flash = require('connect-flash'),
+  mongoose = require('mongoose'),
+  helmet = require('helmet'),
+  csrf = require('csurf'),
+  moment = require('moment');
+
 
 //create express app
 var app = express();
@@ -45,22 +49,36 @@ app.use(require('compression')());
 app.use(require('serve-static')(path.join(__dirname, 'public')));
 app.use(require('method-override')());
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
 app.use(cookieParser(config.cryptoKey));
 app.use(session({
   resave: true,
   saveUninitialized: true,
   secret: config.cryptoKey,
-  store: new mongoStore({ url: config.mongodb.uri })
+  store: new mongoStore({
+    url: config.mongodb.uri
+  })
 }));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(csrf({ cookie: { signed: true } }));
+// app.use(csrf({
+//   cookie: {
+//     signed: true
+//   }
+// }));
 helmet(app);
 
+app.use(flash());
+app.use(function (req, res, next) {
+  res.locals.messages = require('express-messages')(req, res);
+  next();
+});
+
 //response locals
-app.use(function(req, res, next) {
-  res.cookie('_csrfToken', req.csrfToken());
+app.use(function (req, res, next) {
+  // res.cookie('_csrfToken', req.csrfToken());
   res.locals.user = {};
   res.locals.user.defaultReturnUrl = req.user && req.user.defaultReturnUrl();
   res.locals.user.username = req.user && req.user.username;
@@ -89,7 +107,7 @@ app.utility.slugify = require('./util/slugify');
 app.utility.workflow = require('./util/workflow');
 
 //listen up
-app.server.listen(app.config.port, function(){
+app.server.listen(app.config.port, function () {
   //and... we're live
   console.log('Server is running on port ' + config.port);
 });

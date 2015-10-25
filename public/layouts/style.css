@@ -4,6 +4,11 @@
   line-height: 1.9em;
 }
 
+.event.list li {
+    margin: 5px 0;
+    list-style-type: square;
+}
+
 ul.error li, ul.info li, ul.success li{
   margin:20px 0 20px 0;
   padding: 15px;

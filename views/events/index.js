@@ -97,6 +97,43 @@ exports.create = function (req, res, next) {
   workflow.emit('validate');
 };
 
+exports.findMyEvents = function (req, res, next) {
+  req.query.name = req.query.name ? req.query.name : '';
+  req.query.limit = req.query.limit ? parseInt(req.query.limit, null) : 20;
+  req.query.page = req.query.page ? parseInt(req.query.page, null) : 1;
+  req.query.sort = req.query.sort ? req.query.sort : '_id';
+
+  var filters = {
+    username: req.user.username
+  };
+  if (req.query.username) {
+    filters.username = new RegExp('^.*?' + req.query.username + '.*$', 'i');
+  }
+
+  req.app.db.models.Event.pagedFind({
+    filters: filters,
+    keys: 'name venue date startTime endTime username description',
+    limit: req.query.limit,
+    page: req.query.page,
+    sort: req.query.sort
+  }, function (err, results) {
+    if (err) {
+      return next(err);
+    }
+
+    if (req.xhr) {
+      res.header("Cache-Control", "no-cache, no-store, must-revalidate");
+      results.filters = req.query;
+      res.send(results);
+    } else {
+      results.filters = req.query;
+      res.render('events/myevents', {
+        data: results.data
+      });
+    }
+  });
+};
+
 exports.edit = function (req, res, next) {
   req.app.db.models.Event.findById(req.params.id).exec(function (err, event) {
     if (err) {
@@ -142,8 +179,28 @@ exports.update = function (req, res, next) {
 
       workflow.outcome.record = event;
       req.flash('success', 'Event Updated');
-      res.location('/event/show/' + req.params.id);
-      res.redirect('/event/show/' + req.params.id);
+      res.location('/myevents/');
+      res.redirect('/myevents/');
+    });
+  });
+  workflow.emit('validate');
+};
+
+exports.delete = function (req, res, next) {
+  var workflow = req.app.utility.workflow(req, res);
+
+  workflow.on('validate', function () {
+    workflow.emit('deleteEvent');
+  });
+
+  workflow.on('deleteEvent', function () {
+    req.app.db.models.Event.findByIdAndRemove(req.params.id, function (err, event) {
+      if (err) {
+        return workflow.emit('exception', err);
+      }
+      req.flash('success', 'Event Deleted');
+      res.location('/myevents/');
+      res.redirect('/myevents/');
     });
   });
   workflow.emit('validate');

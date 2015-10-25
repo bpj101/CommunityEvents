@@ -1,6 +1,6 @@
 'use strict';
 
-exports.find = function (req, res, next) {
+exports.findMyEvents = function (req, res, next) {
   req.query.name = req.query.name ? req.query.name : '';
   req.query.limit = req.query.limit ? parseInt(req.query.limit, null) : 20;
   req.query.page = req.query.page ? parseInt(req.query.page, null) : 1;

@@ -12,15 +12,32 @@ block body
         ul.events
           each event, i in data
             li
-              strong #{event.name}
-              &nbsp; &nbsp;  
-              i.fa.fa-pencil 
-              a(href="/events/edit/#{event._id}") Edit    
-              &nbsp; &nbsp; 
-              i.fa.fa-trash 
-              a(id="deleteEvent", data-delete="#{event._id}", href="#") Delete
+            strong #{event.name}
+            &nbsp; &nbsp;  
+            i.fa.fa-pencil 
+            a(href="/events/edit/#{event._id}") Edit    
+            &nbsp; &nbsp; 
+            i.fa.fa-trash 
+            a(id="deleteEvent", data-delete="#{event._id}", href="#") Delete
+              //- ul.event.list
+              //-   li 
+              //-     strong Venue:
+              //-     |  #{event.venue}
+              //-   li 
+              //-     strong Date:
+              //-     |  #{event.date}
+              //-   li 
+              //-     strong Start Time:
+              //-     |  #{event.startTime}
+              //-   li 
+              //-     strong End Time:
+              //-     |  #{event.endTime}
+              //- p #{event.description} 
       else
         p You have no events        
     div.col-sm-4
       div.page-header
         h1 Sidebar
+
+
+        

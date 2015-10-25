@@ -20,7 +20,7 @@ block body
             input.form-control(type='text', name='venue', value='#{event.venue}')
           div.form-group
             label Event Date:
-            input.form-control(type='date', name='date', value='#{event.date}')
+            input.form-control(id="date"  type='text', name='date', value='#{event.date}', onfocus='(this.type="date")', onblur='(this.type="text")')
           div.form-group
             label Start Time:
             input.form-control(type='time', name='startTime', value='#{event.startTime}')
